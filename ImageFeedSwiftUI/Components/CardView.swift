@@ -5,32 +5,30 @@
 //  Created by Мамытов Руслан on 17.06.2026.
 //
 import SwiftUI
-
-struct ImageModel: Identifiable {
-    let id = UUID()
-    
-    let imageName: String
-    let subtitle: String
-}
+import Kingfisher
 
 struct CardView: View {
-    var image: ImageModel
+    var photo: Photo
+    
+    private var aspectRatio: CGFloat {
+        guard photo.width > 0, photo.height > 0 else { return 1 }
+        return CGFloat(photo.width) / CGFloat(photo.height)
+    }
     
     var body: some View {
         ZStack(alignment: .bottomLeading) {
-            Image(image.imageName)
+            KFImage(URL(string: photo.smallImageURL))
+                .placeholder {
+                    Image("Image Stub")
+                        .resizable()
+                        .scaledToFill()
+                }
                 .resizable()
-                .aspectRatio(contentMode: .fit)
-
-            LinearGradient(
-                colors: [.clear, .black.opacity(0.5)],
-                startPoint: .top,
-                endPoint: .bottom
-            ).overlay {
-                
-            }
+                .aspectRatio(aspectRatio, contentMode: .fit)
+                .clipShape(RoundedRectangle(cornerRadius: 16))
             
-            VStack {
+            
+            VStack(spacing: 0) {
                 HStack {
                     Spacer()
                     Button(action: {}) {
@@ -41,16 +39,32 @@ struct CardView: View {
             }
             .padding(16)
             
-            Text(image.subtitle)
-                .foregroundStyle(.white)
-                .padding(.leading, 8)
+            Text(photo.description)
+                .lineLimit(1)
+                .font(.system(size: 13))
+                .foregroundStyle(.ypWhite)
+                .padding(.leading, 16)
                 .padding(.bottom, 8)
+                .background {
+                    LinearGradient(
+                        colors: [.clear, .black.opacity(0.1)],
+                        startPoint: .bottomLeading,
+                        endPoint: .bottomTrailing
+                    )
+                }
         }
-        .fixedSize(horizontal: false, vertical: true)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .aspectRatio(aspectRatio, contentMode: .fit)
     }
 }
 
 #Preview {
-    CardView(image: ImageModel(imageName: "0", subtitle: "Subtitle"))
+    CardView(
+        photo: Photo(
+            id: "id",
+            width: 1280,
+            height: 720,
+            description: "Description",
+            smallImageURL:"https://images.unsplash.com/photo-1493612276216-ee3925520721?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cmFuZG9tfGVufDB8fDB8fHww"
+        )
+    )
 }
