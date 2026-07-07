@@ -10,27 +10,39 @@ import SwiftUI
 struct ContentView: View {
     @State private var selectedTab = 0
     
+    private let container: AppDependencyContainer
+    private let imagesTabTag = 0
+    private let profileTabTag = 1
     private var imagesTabImage: String {
         selectedTab == 0 ? "Images Tab Active" : "Images Tab Inactive"
     }
-    
     private var profileTabImage: String {
         selectedTab == 1 ? "Profile Tab Active" : "Profile Tab Inactive"
     }
     
+    init(container: AppDependencyContainer, selectedTab: Int = 0) {
+        self.container = container
+        self.selectedTab = selectedTab
+    }
+    
     var body: some View {
         TabView(selection: $selectedTab) {
-            Tab("", image: imagesTabImage, value: 0) {
-                ImageListView()
-            }
+            container.makeImageListView()
+                .tabItem {
+                    Image(imagesTabImage)
+                }
+                .tag(imagesTabTag)
             
-            Tab("", image: profileTabImage, value: 1) {
-                ProfileView()
-            }
+            ProfileView()
+                .tabItem {
+                    Image(profileTabImage)
+                }
+                .tag(profileTabTag)
         }
     }
 }
 
 #Preview {
-    ContentView()
+    let container = AppDependencyContainer()
+    ContentView(container: container)
 }
