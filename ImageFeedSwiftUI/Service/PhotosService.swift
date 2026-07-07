@@ -12,10 +12,10 @@ final class PhotosService: PhotosServiceProtocol {
         self.networkClient = networkClient
     }
     
-    func loadNextPage(page: Int) async -> Result<[Photo], NetworkError> {
+    func loadNextPage(page: Int) async throws -> Result<[Photo], NetworkError> {
         let url = "https://api.unsplash.com/photos?page=\(page)&client_id=Gll7I_bHpQYaaQx03TMwIJoG3CED6zwJGPuvDWavsnc"
         
-        let result: Result<[PhotoResponse], NetworkError> = await networkClient.request(
+        let result: Result<[PhotoResponse], NetworkError> = try await networkClient.request(
             url: url
         )
             

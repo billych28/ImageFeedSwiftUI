@@ -6,5 +6,5 @@
 //
 
 protocol PhotosServiceProtocol {
-    func loadNextPage(page: Int) async -> Result<[Photo], NetworkError>
+    func loadNextPage(page: Int) async throws -> Result<[Photo], NetworkError>
 }

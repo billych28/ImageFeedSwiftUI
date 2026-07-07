@@ -10,33 +10,26 @@ enum NetworkError: Error {
     case invalidURL
     case invalidResponse
     case httpError(statusCode: Int)
-    case decodingError(Error)
-    case unknown(Error)
-    case cancelled(Error)
+    case decodingError
+    case unknown
     
-    var errorDescription: String? {
-        return switch self {
-        case .invalidURL, .invalidResponse, .httpError:
-            "Нет соединения с интернетом\n Попробуйте обновить позднее или проверить подключение сети"
-        case .unknown:
-            "Произошла ошибка при выполнении операции"
+    var title: String {
+        switch self {
+        case .invalidURL, .invalidResponse:
+            "Ошибка соединения"
         default:
-            nil
+            "Ошибка"
         }
     }
         
-    var debugDescription: String? {
+    var message: String {
         switch self {
-        case .invalidURL:
-            "Отсутствует URL"
-        case .invalidResponse:
-            "Запрос выполнен без ошибки, но в параметрах замыкания отсутствует `URLResponse` или он не является `HTTPURLResponse`"
-        case .httpError(let code):
-            "Сервер вернул ответ с кодом ошибки: \(code)"
-        case .decodingError(let error):
-            error.localizedDescription
-        case .unknown(let error), .cancelled(let error):
-            error.localizedDescription
+        case .invalidURL, .invalidResponse:
+            "Произошла ошибка при запросе к серверу"
+        case .httpError(let statusCode):
+            "Сервер вернул ошибку с кодом: \(statusCode)"
+        default:
+            "Что-то пошло не так"
         }
     }
 }
@@ -49,11 +42,9 @@ final class NetworkClient: NetworkClientProtocol {
         self.decoder.keyDecodingStrategy = .convertFromSnakeCase
     }
     
-    func request<T>(url: String) async -> Result<T, NetworkError> where T : Decodable {
+    func request<T>(url: String) async throws -> Result<T, NetworkError> where T : Decodable {
         guard let url = URL(string: url) else {
-            let error = NetworkError.invalidURL
-            print(String(describing: error.debugDescription))
-            return .failure(error)
+            return .failure(NetworkError.invalidURL)
         }
         
         let request = URLRequest(url: url)
@@ -62,34 +53,28 @@ final class NetworkClient: NetworkClientProtocol {
             let (data, response) = try await session.data(for: request)
             
             guard let httpResponse = response as? HTTPURLResponse else {
-                let error = NetworkError.invalidResponse
-                print(String(describing: error.debugDescription))
-                return .failure(error)
+                return .failure(NetworkError.invalidResponse)
             }
             
             guard (200...299).contains(httpResponse.statusCode) else {
-                let error = NetworkError.httpError(
-                    statusCode: httpResponse.statusCode
+                return .failure(
+                    NetworkError.httpError(statusCode: httpResponse.statusCode)
                 )
-                print(String(describing: error.debugDescription))
-                return .failure(error)
             }
             
             do {
                 let model = try decoder.decode(T.self, from: data)
                 return .success(model)
             } catch {
-                let error = NetworkError.decodingError(error)
-                print(String(describing: error.debugDescription))
-                return .failure(error)
+                return .failure(NetworkError.decodingError)
             }
         }
         catch {
             if error is CancellationError || (error as? URLError)?.code == .cancelled {
-                return .failure(.cancelled(error))
+                throw error
             }
             
-            return .failure(.unknown(error))
+            return .failure(NetworkError.unknown)
         }
     }
 }

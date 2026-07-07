@@ -25,17 +25,18 @@ class ImageListViewModel: ImageListViewModelProtocol {
         
         isLoading = true
         
-        let result = await service.loadNextPage(page: currentPage)
-        
-        switch result {
-        case .success(let photos):
-            self.photos.append(contentsOf: photos)
-            self.currentPage += 1
-        case .failure(.cancelled):
-            isLoading = false
-            return
-        case .failure(let error):
-            self.alertModel = getAlertModel(error: error)
+        do {
+            let result = try await service.loadNextPage(page: currentPage)
+            
+            switch result {
+            case .success(let photos):
+                self.photos.append(contentsOf: photos)
+                self.currentPage += 1
+            case .failure(let error):
+                self.alertModel = getAlertModel(error: error)
+            }
+        } catch {
+            print("Cancellation")
         }
         
         isLoading = false

@@ -7,5 +7,5 @@
 import Foundation
 
 protocol NetworkClientProtocol {
-    func request<T: Decodable>(url: String) async -> Result<T, NetworkError>
+    func request<T: Decodable>(url: String) async throws -> Result<T, NetworkError>
 }
