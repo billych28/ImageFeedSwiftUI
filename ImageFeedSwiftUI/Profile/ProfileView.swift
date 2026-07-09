@@ -10,10 +10,10 @@ struct ProfileView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
-                Image("Stub")
+                Image(.stub)
                 Spacer()
                 Button {} label: {
-                    Image("Exit")
+                    Image(.exit)
                 }
             }
             Text("Екатерина Новикова")

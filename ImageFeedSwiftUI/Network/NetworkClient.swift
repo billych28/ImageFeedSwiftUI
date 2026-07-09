@@ -42,13 +42,7 @@ final class NetworkClient: NetworkClientProtocol {
         self.decoder.keyDecodingStrategy = .convertFromSnakeCase
     }
     
-    func request<T>(url: String) async throws -> Result<T, NetworkError> where T : Decodable {
-        guard let url = URL(string: url) else {
-            return .failure(NetworkError.invalidURL)
-        }
-        
-        let request = URLRequest(url: url)
-        
+    func request<T>(request: URLRequest) async throws -> Result<T, NetworkError> where T : Decodable {
         do {
             let (data, response) = try await session.data(for: request)
             

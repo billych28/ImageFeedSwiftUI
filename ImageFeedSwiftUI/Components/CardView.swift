@@ -33,7 +33,7 @@ struct CardView: View {
         ZStack(alignment: .topTrailing) {
             KFImage(URL(string: photo.smallImageURL))
                 .placeholder {
-                    Image("Image Stub")
+                    Image(.imageStub)
                         .resizable()
                         .scaledToFill()
                 }
@@ -42,7 +42,7 @@ struct CardView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 16))
             
             Button(action: {}) {
-                Image("Like Inactive")
+                Image(.likeInactive)
             }
             .padding(16)
         }

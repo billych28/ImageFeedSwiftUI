@@ -13,7 +13,7 @@ struct ImageFeedSwiftUIApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView(container: container)
+            container.makeMainView()
         }
     }
 }

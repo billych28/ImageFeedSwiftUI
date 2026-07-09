@@ -8,7 +8,7 @@ import SwiftUI
 import Combine
 
 @MainActor
-class ImageListViewModel: ImageListViewModelProtocol {
+class ImageListViewModel: ImageListViewModelProtocol, AlertErrorHandler {
     @Published var photos: [Photo] = []
     @Published var isLoading: Bool = false
     @Published var alertModel: AlertModel?
@@ -40,9 +40,5 @@ class ImageListViewModel: ImageListViewModelProtocol {
         }
         
         isLoading = false
-    }
-    
-    private func getAlertModel(error: NetworkError) -> AlertModel {
-        AlertModel(title: "Ошибка", message: error.localizedDescription)
     }
 }
