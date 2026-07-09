@@ -4,6 +4,7 @@
 //
 //  Created by Мамытов Руслан on 19.06.2026.
 //
+import Foundation
 
 final class PhotosService: PhotosServiceProtocol {
     private let networkClient: NetworkClientProtocol
@@ -13,10 +14,13 @@ final class PhotosService: PhotosServiceProtocol {
     }
     
     func loadNextPage(page: Int) async throws -> Result<[Photo], NetworkError> {
-        let url = "https://api.unsplash.com/photos?page=\(page)&client_id=Gll7I_bHpQYaaQx03TMwIJoG3CED6zwJGPuvDWavsnc"
+        guard let url = URL(string: "https://api.unsplash.com/photos?page=\(page)&client_id=Gll7I_bHpQYaaQx03TMwIJoG3CED6zwJGPuvDWavsnc") else {
+            return .failure(.invalidURL)
+        }
+        let request = URLRequest(url: url)
         
         let result: Result<[PhotoResponse], NetworkError> = try await networkClient.request(
-            url: url
+            request: request
         )
             
         return result.map { photoResponse in
